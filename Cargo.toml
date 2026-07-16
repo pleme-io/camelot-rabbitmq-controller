@@ -1,0 +1,33 @@
+[package]
+name = "camelot-rabbitmq-controller"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+description = "M0: typed RabbitmqTopology CRD (camelot.pleme.io/v1) + an observe-only reconciler that reads live vhost/queue state from the RabbitMQ management HTTP API and diffs it against declared spec, following breathe-crd's band_kind! CRD pattern and breathe-controller's Controller/reconcile shape. Read-only: computes drift, never mutates the broker (task #145's config-drift visibility, ahead of any write path)."
+license = "MIT"
+repository = "https://github.com/pleme-io/camelot-rabbitmq-controller"
+authors = ["pleme-io"]
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+
+[dependencies]
+kube = { version = "0.96", features = ["client", "runtime", "derive", "rustls-tls"], default-features = false }
+k8s-openapi = { version = "0.23", features = ["latest"] }
+schemars = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1.40", features = ["macros", "rt-multi-thread"] }
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+futures = "0.3"
+anyhow = "1"
+
+[dev-dependencies]
+serde_yaml = "0.9"
