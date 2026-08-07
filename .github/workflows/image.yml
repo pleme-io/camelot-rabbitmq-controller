@@ -1,0 +1,27 @@
+name: image
+
+# Consumer shim over substrate's shared image-push pipeline. A controller is a
+# SERVICE, so per the fleet's AUTO-RELEASE doctrine it ships as a Docker IMAGE,
+# not a crates.io crate — this repo deliberately has no cargo auto-release.
+#
+# `imageAttr: image` is the flake output; see flake.nix, which builds it through
+# substrate's shared `oci/hardened-base.nix` (`mkPackageImage`,
+# `bases.distroless-glibc`) — no shell, no package manager, nonroot 65532.
+#
+# Tag shape matches breathe's: an immutable amd64-r<run>-<sha> plus a moving
+# amd64-latest, so a deploy can pin the digest and never resolve `:latest`.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  image:
+    uses: pleme-io/substrate/.github/workflows/image-push.yml@main
+    with:
+      imageAttr: image
+      imageName: pleme-io/camelot-rabbitmq-controller
+      tag: amd64-r${{ github.run_number }}-${{ github.sha }}
+      additionalTags: amd64-latest
+    secrets: inherit
