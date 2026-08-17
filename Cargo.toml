@@ -1,6 +1,6 @@
 [package]
 name = "camelot-rabbitmq-controller"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.89"
 description = "M0: typed RabbitmqTopology CRD (camelot.pleme.io/v1) + an observe-only reconciler that reads live vhost/queue state from the RabbitMQ management HTTP API and diffs it against declared spec, following breathe-crd's band_kind! CRD pattern and breathe-controller's Controller/reconcile shape. Read-only: computes drift, never mutates the broker (task #145's config-drift visibility, ahead of any write path)."
