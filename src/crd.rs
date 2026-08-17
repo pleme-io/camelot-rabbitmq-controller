@@ -96,8 +96,8 @@ mod tests {
             management_api: "http://rabbitmq.camelot.svc.cluster.local:15672".to_string(),
             credentials_secret_ref: "rabbitmq-admin-credentials".to_string(),
             vhosts: vec![VhostSpec {
-                name: "akeyless".to_string(),
-                queues: vec![QueueSpec { name: "gator-events".to_string(), durable: true }],
+                name: "example-app".to_string(),
+                queues: vec![QueueSpec { name: "orders-events".to_string(), durable: true }],
             }],
         };
         let yaml = serde_yaml::to_string(&spec).expect("serialize");

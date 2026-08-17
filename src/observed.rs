@@ -120,12 +120,16 @@ mod tests {
     #[test]
     fn matching_state_produces_no_drift() {
         let desired = spec(vec![VhostSpec {
-            name: "akeyless".to_string(),
-            queues: vec![QueueSpec { name: "gator-events".to_string(), durable: true }],
+            name: "example-app".to_string(),
+            queues: vec![QueueSpec { name: "orders-events".to_string(), durable: true }],
         }]);
         let observed = ObservedTopology {
-            vhosts: vec![ObservedVhost { name: "akeyless".to_string() }],
-            queues: vec![ObservedQueue { name: "gator-events".to_string(), vhost: "akeyless".to_string(), durable: true }],
+            vhosts: vec![ObservedVhost { name: "example-app".to_string() }],
+            queues: vec![ObservedQueue {
+                name: "orders-events".to_string(),
+                vhost: "example-app".to_string(),
+                durable: true,
+            }],
         };
         assert_eq!(diff_topology(&desired, &observed), vec![]);
     }
@@ -133,13 +137,13 @@ mod tests {
     #[test]
     fn missing_vhost_is_reported_and_suppresses_its_queue_noise() {
         let desired = spec(vec![VhostSpec {
-            name: "transactions-bis".to_string(),
-            queues: vec![QueueSpec { name: "bis-events".to_string(), durable: true }],
+            name: "example-transactions".to_string(),
+            queues: vec![QueueSpec { name: "transactions-events".to_string(), durable: true }],
         }]);
         let observed = ObservedTopology::default();
         assert_eq!(
             diff_topology(&desired, &observed),
-            vec![Drift::MissingVhost { vhost: "transactions-bis".to_string() }]
+            vec![Drift::MissingVhost { vhost: "example-transactions".to_string() }]
         );
     }
 
@@ -162,18 +166,22 @@ mod tests {
     #[test]
     fn durability_mismatch_is_reported() {
         let desired = spec(vec![VhostSpec {
-            name: "akeyless".to_string(),
-            queues: vec![QueueSpec { name: "gator-events".to_string(), durable: true }],
+            name: "example-app".to_string(),
+            queues: vec![QueueSpec { name: "orders-events".to_string(), durable: true }],
         }]);
         let observed = ObservedTopology {
-            vhosts: vec![ObservedVhost { name: "akeyless".to_string() }],
-            queues: vec![ObservedQueue { name: "gator-events".to_string(), vhost: "akeyless".to_string(), durable: false }],
+            vhosts: vec![ObservedVhost { name: "example-app".to_string() }],
+            queues: vec![ObservedQueue {
+                name: "orders-events".to_string(),
+                vhost: "example-app".to_string(),
+                durable: false,
+            }],
         };
         assert_eq!(
             diff_topology(&desired, &observed),
             vec![Drift::QueueDurabilityMismatch {
-                vhost: "akeyless".to_string(),
-                queue: "gator-events".to_string(),
+                vhost: "example-app".to_string(),
+                queue: "orders-events".to_string(),
                 desired_durable: true,
                 observed_durable: false,
             }]
@@ -197,12 +205,12 @@ mod tests {
         // real API and simply ignored here — this is the "not yet modeled,
         // named honestly" surface, not a silent gap).
         let raw = r#"[
-            {"name":"gator-events","vhost":"akeyless","durable":true,"messages":0,"consumers":1},
-            {"name":"bis-events","vhost":"transactions-bis","durable":false,"messages":12,"consumers":0}
+            {"name":"orders-events","vhost":"example-app","durable":true,"messages":0,"consumers":1},
+            {"name":"transactions-events","vhost":"example-transactions","durable":false,"messages":12,"consumers":0}
         ]"#;
         let queues: Vec<ObservedQueue> = serde_json::from_str(raw).expect("parse queues");
         assert_eq!(queues.len(), 2);
-        assert_eq!(queues[0].name, "gator-events");
+        assert_eq!(queues[0].name, "orders-events");
         assert!(queues[0].durable);
         assert!(!queues[1].durable);
     }
